@@ -1,5 +1,3 @@
-import 'isomorphic-fetch'
-
 function _postData(data, url) {
   return fetch(url, {
     method: 'POST',
