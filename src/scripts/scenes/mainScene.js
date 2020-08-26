@@ -70,6 +70,7 @@ export default class MainScene extends Phaser.Scene {
     this.trial_counter = 0
   }
   update() {
+    let socket = this.game.socket
     switch (this.state) {
       case states.FADE_IN:
         break
@@ -94,6 +95,7 @@ export default class MainScene extends Phaser.Scene {
                 this.score.addScore(50)
               }
             }
+            socket.emit('trial_choice', globalData.config.id, l)
             this.time.delayedCall(1000, cb)
             this.time.delayedCall(2000, () => {
               this.trial_data.chest = l.value

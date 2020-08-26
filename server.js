@@ -23,11 +23,32 @@ const server = app.listen(PORT, () => {
   console.log(`Listening on ${PORT}`)
 })
 
+var foobar = {}
 const io = socketIO(server)
 io.on('connection', (socket) => {
-  // socket.id is unique ID for session (essentially equivalent to participant ID, except
-  // it would change if they disconnected/reconnected)
+  // socket.id is unique ID for *session* (not necessarily for the participant ID)
+  // If we lose the session due to server disconnecting, how can we
   console.log(`Client ${socket.id} connected`)
   // socket.handshake has a lot of useful things: https://socket.io/docs/server-api/#socket-handshake
   socket.on('disconnect', (reason) => console.log(`Client ${socket.id} disconnected because of ${reason}`))
+
+  socket.on('id_setup', (conf) => {
+    // TODO: this would wipe out previous partially written data!
+    // TODO: also, if they already have data, start from that point (update points,
+    // add note)
+    foobar[conf.id] = {
+      config: conf,
+      trialData: [],
+    } // init trial array
+  })
+
+  socket.on('trial_choice', (id, data) => {
+    console.log(`id ${id}: ${data}`)
+    foobar[id].trialData.push(data)
+    console.log(`foobar: ${JSON.stringify(foobar)}`)
+    //
+    socket.
+  })
+  // dump logs every trial
+  socket.on('log_dump', (id, logs) => {})
 })

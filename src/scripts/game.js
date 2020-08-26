@@ -55,6 +55,11 @@ const config = {
 window.addEventListener('load', () => {
   // fixed seed for everyone
   const socket = io()
+  // all these should have extra listeners added in the "real" game,
+  // so that we can handle comm errors more gracefully (e.g. kick to
+  // a "waiting for response" state)
+  // ha, one issue-- how do we **get** these messages if the connection
+  // fails for good?
   socket.on('reconnect', (attemptNumber) => {
     log.info(`Reconnected after ${attemptNumber} tries.`)
   })
@@ -123,6 +128,8 @@ window.addEventListener('load', () => {
     start_dates: visitTimes,
     exit_dates: exitTimes,
   }
+  // set up for user
+  socket.emit('id_setup', globalData.config)
 })
 
 // once the data is successfully sent, null this out
