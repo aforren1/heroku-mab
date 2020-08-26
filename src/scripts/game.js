@@ -55,12 +55,27 @@ const config = {
 window.addEventListener('load', () => {
   // fixed seed for everyone
   const socket = io()
-  socket.on('connection_error', (err) => {
+  socket.on('reconnect', (attemptNumber) => {
+    log.info(`Reconnected after ${attemptNumber} tries.`)
+  })
+  socket.on('reconnecting', (attemptNumber) => {
+    log.warn(`Reconnect attempt ${attemptNumber}`)
+  })
+  socket.on('reconnect_error', (err) => {
     log.error(err)
+  })
+  socket.on('reconnect_failed', () => {
+    log.error('Reconnection failed.')
+  })
+  socket.on('connect_error', (err) => {
+    log.error(err)
+  })
+  socket.on('pong', (latency) => {
+    log.info(`Last pong latency ${latency} ms.`)
   })
 
   const game = new Phaser.Game(config)
-  game.socket = socket
+  game.socket = socket // stick socket in game to share around
   log.info('Phaser loaded.')
   let conf = game.config
   let rt = 'webgl'

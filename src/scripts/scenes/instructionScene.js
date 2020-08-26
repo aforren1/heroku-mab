@@ -31,6 +31,7 @@ export default class InstructionScene extends Phaser.Scene {
   }
 
   create() {
+    const socket = this.game.socket // bring out the socket
     let center = this.game.config.height / 2
 
     let score = new Score(this, center, center - 380, 0)
