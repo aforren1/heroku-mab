@@ -19,7 +19,6 @@ export class Chest extends Phaser.GameObjects.Container {
     this.sprite = img
     this.jangle = scene.sound.add('jangle')
     this.thump = scene.sound.add('thump')
-    //this.reset()
     this.emitter = scene.add.particles('coin').createEmitter({
       frame: { frames: [0, 1, 2, 3, 4, 5], cycle: false },
       x: x,

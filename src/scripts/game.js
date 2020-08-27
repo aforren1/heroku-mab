@@ -1,4 +1,3 @@
-import { globalData } from './utils/globaldata'
 import 'phaser' // TODO: split phaser imports up to let those trees shake
 import '@babel/polyfill'
 import log from './utils/logger'
@@ -51,10 +50,9 @@ const config = {
     ],
   },
 }
+const socket = io()
 
 window.addEventListener('load', () => {
-  // fixed seed for everyone
-  const socket = io()
   // all these should have extra listeners added in the "real" game,
   // so that we can handle comm errors more gracefully (e.g. kick to
   // a "waiting for response" state)
@@ -80,8 +78,8 @@ window.addEventListener('load', () => {
   })
 
   const game = new Phaser.Game(config)
-  game.socket = socket // stick socket in game to share around
   log.info('Phaser loaded.')
+  game.socket = socket // stick socket in game to share around
   let conf = game.config
   let rt = 'webgl'
   if (conf.renderType === Phaser.CANVAS) {
@@ -109,9 +107,11 @@ window.addEventListener('load', () => {
     exitTimes = JSON.parse(exitTimes)
   }
   const url_params = new URL(window.location.href).searchParams
-  const randomString = (length) => [...Array(length)].map(() => (~~(Math.random() * 36)).toString(36)).join('')
-  let id = url_params.get('PROLIFIC_PID') || randomString(10)
-  globalData.config = {
+  // If coming from prolific, use that ID. Otherwise, generate some random chars
+  // localStorage['returning'] should be used to determine if repeat taker
+  // const randomString = (length) => [...Array(length)].map(() => (~~(Math.random() * 36)).toString(36)).join('')
+  let id = url_params.get('PROLIFIC_PID') || socket.id //randomString(10)
+  let user_config = {
     id: id,
     // if not on prolific, might be all null
     prolific_config: {
@@ -129,7 +129,8 @@ window.addEventListener('load', () => {
     exit_dates: exitTimes,
   }
   // set up for user
-  socket.emit('id_setup', globalData.config)
+  socket.emit('id_setup', user_config)
+  log.info('Exiting initialization.')
 })
 
 // once the data is successfully sent, null this out
@@ -161,5 +162,6 @@ window.addEventListener('unload', (event) => {
 // breaks on IE, so dump if that's really a big deal
 // Might be able to polyfill our way out, too?
 window.addEventListener('devtoolschange', (event) => {
-  log.warn('Devtools opened: ' + event.detail.isOpen)
+  log.warn(`Devtools opened: ${event.detail.isOpen} at time ${window.performance.now()}`)
+  socket.emit('log_dump', log.msgs)
 })

@@ -63,6 +63,7 @@
     "mailgun-js": "github:highlycaffeinated/mailgun-js",
     "phaser": "^3.24.1",
     "phaser3-rex-plugins": "^1.1.20",
+    "seedrandom": "^3.0.5",
     "socket.io": "^2.3.0",
     "ua-parser-js": "^0.7.21"
   }

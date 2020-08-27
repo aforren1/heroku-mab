@@ -2,7 +2,7 @@ import log from '../utils/logger'
 import { ChestGroup } from '../objects/chestgroup'
 import { Score } from '../objects/score'
 import { Enum } from '../utils/enum'
-import { generateProbs } from '../utils/bandit'
+import { generateProbs } from '../../../server/bandit'
 import { globalData } from '../utils/globaldata'
 import { copyObj } from '../utils/copy'
 

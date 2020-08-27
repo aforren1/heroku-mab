@@ -27,22 +27,23 @@ plot(prob_sched / 2 + 0.5);
 */
 
 // https://github.com/aforren1/2dof-tracking/blob/master/helpers.py#L21
+const seedrandom = require('seedrandom')
 
-export function generateProbs() {
+export function generateProbs(trials = 10) {
   // using primes,
   // 1 Hz = nTrials (1 cycle)
   // 2 Hz = nTrials/2
   // 3 Hz = nTrials/3
   // ...
+  let rng = seedrandom('42')
   const freqs = [2, 3, 5, 11, 17]
   //const trials = freqs.reduce((a, b) => a * b)
-  const trials = 10
   //const baseAmp = 0.889 // max possible amplitude *just* shy of 1
   //const amps = freqs.map((x) => baseAmp / x)
   const amps = [0.2, 0.2, 0.2, 0.2, 0.2]
   // TODO: set with something seedable!
   // e.g. https://github.com/davidbau/seedrandom
-  const phases = [...Array(freqs.length)].map((_, i) => Math.random() * 2 * Math.PI)
+  const phases = [...Array(freqs.length)].map((_, i) => rng() * 2 * Math.PI)
   const t = Array.from({ length: trials }, (x, i) => i / trials)
   let probs = Array(trials).fill(0)
   for (let i = 0; i < freqs.length; i++) {
@@ -55,3 +56,5 @@ export function generateProbs() {
   // to get outcome, generate Math.random() < probs
   return probs
 }
+
+module.exports = generateProbs
