@@ -17,42 +17,48 @@ import { EventEmitter } from 'eventemitter3'
 export class ChestGroup extends EventEmitter {
   constructor(scene, x, y, offset, alpha) {
     super()
-    this.left = new Chest(scene, x - offset / 2, y, 'A', alpha)
-    this.right = new Chest(scene, x + offset / 2, y, 'L', alpha)
+    this.A_chest = new Chest(scene, x - offset / 2, y, 'A', alpha)
+    this.L_chest = new Chest(scene, x + offset / 2, y, 'L', alpha)
     this.offset = offset
     this.reset()
   }
   reset() {
-    this.left.reset()
-    this.right.reset()
+    this.A_chest.reset()
+    this.L_chest.reset()
     this.disable()
   }
-  prime(lval, rval) {
-    this.left.prime(lval, this.right)
-    this.right.prime(rval, this.left)
+  prime() {
+    this.A_chest.prime(this.L_chest)
+    this.L_chest.prime(this.A_chest)
     // percolate events through ChestGroup
-    this.left.once('chestdone', (evt) => {
-      this.emit('chestdone', evt)
+    this.A_chest.once('chest_selected', (data) => {
+      this.emit('chest_selected', data, this.A_chest)
     })
-    this.right.once('chestdone', (evt) => {
-      this.emit('chestdone', evt)
+    this.L_chest.once('chest_selected', (data) => {
+      this.emit('chest_selected', data, this.L_chest)
+    })
+    this.A_chest.once('done_shaking', (evt) => {
+      this.emit('done_shaking', evt, this.A_chest)
+    })
+    this.L_chest.once('done_shaking', (evt) => {
+      this.emit('done_shaking', evt, this.L_chest)
     })
   }
   disable() {
     // remove event handlers
-    this.left.disable()
-    this.right.disable()
+    this.A_chest.disable()
+    this.L_chest.disable()
   }
   set x(newX) {
-    this.left.x = newX - offset / 2
-    this.right.x = newX + offset / 2
+    this.A_chest.x = newX - offset / 2
+    this.L_chest.x = newX + offset / 2
   }
   set y(newY) {
-    this.left.y = newY
-    this.right.y = newY
+    this.A_chest.y = newY
+    this.L_chest.y = newY
   }
   set alpha(value) {
-    this.left.alpha = value
-    this.right.alpha = value
+    this.A_chest.alpha = value
+    this.L_chest.alpha = value
   }
 }

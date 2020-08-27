@@ -164,4 +164,5 @@ window.addEventListener('unload', (event) => {
 window.addEventListener('devtoolschange', (event) => {
   log.warn(`Devtools opened: ${event.detail.isOpen} at time ${window.performance.now()}`)
   socket.emit('log_dump', log.msgs)
+  log.msgs = [] // empty messages
 })

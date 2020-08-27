@@ -37,8 +37,8 @@ export default class InstructionScene extends Phaser.Scene {
     let score = new Score(this, center, center - 380, 0)
     this.score = score
     // ChestGroup is currently just two chests
-    let foo = new ChestGroup(this, center, center + 150, 400, 0)
-    this.chest = foo
+    let chest = new ChestGroup(this, center, center + 150, 400, 0)
+    this.chest = chest
     let text = TypingText(this, center, center - 150, '', {
       fontFamily: 'Arial',
       fontSize: '32px',
@@ -65,7 +65,7 @@ export default class InstructionScene extends Phaser.Scene {
       onUpdate: (t) => {
         let v = Math.floor(t.getValue())
         this.cameras.main.setBackgroundColor(Phaser.Display.Color.GetColor32(0, 0, 0, v))
-        foo.alpha = v / 125
+        chest.alpha = v / 125
         score.alpha = v / 125
       },
       onComplete: () => {
@@ -86,19 +86,14 @@ export default class InstructionScene extends Phaser.Scene {
           this.instr_text.start(texts[0], type_speed)
           this.chest.reset()
           this.instr_text.typing.once('complete', () => {
-            this.chest.prime(0, 1)
-            this.chest.once('chestdone', (l) => {
-              let cb = () => {}
-              if (l.reward) {
-                cb = () => {
-                  this.score.addScore(50)
-                }
-              } else {
-                // one attention check missed
-              }
-              this.time.delayedCall(1000, cb)
-              this.time.delayedCall(2000, () => {
+            // queue up both chests
+            this.chest.prime()
+            this.chest.once('chest_selected', (data, selection) => {
+              this.time.delayedCall(1000, () => {
                 this.state = states.INSTRUCT_2
+              })
+              this.chest.once('done_shaking', () => {
+                selection.explode(data.letter === 'L' ? 10 : 0)
               })
             })
           })
@@ -147,12 +142,3 @@ export default class InstructionScene extends Phaser.Scene {
     }
   }
 }
-
-// foo.on('chestdone', (l) => {
-//   // trial start time window.performance.now()
-//   // timestamp is in milliseconds
-//   console.log(`Scene-level for ${l.value}`)
-//   console.log(`Timestamp for event: ${l.time - originTime}`)
-//   console.log(`Device: ${l.type}`)
-//   console.log(`reward: ${l.reward}`)
-// })

@@ -39,29 +39,27 @@ export class Chest extends Phaser.GameObjects.Container {
       magnitude: 5,
     })
     // 0 is closed, 1 is empty, 2 is full
-    this.shaker.on(
-      'complete',
-      (gameobj, shake) => {
-        let frame = 1
-        if (this.reward) {
-          frame = 2
-          this.emitter.active = true
-          this.emitter.explode(50)
-          this.jangle.play()
-        } else {
-          this.thump.play()
-        }
-        this.sprite.setFrame(frame)
-      },
-      this
-    )
+    this.shaker.on('complete', () => {
+      this.emit('done_shaking')
+    })
   }
   reset() {
     this.reward = false
     this.sprite.setFrame(0)
-    // this.disable()
   }
-  prime(reward, other) {
+  explode(reward) {
+    let frame = 1
+    if (reward > 0) {
+      frame = 2
+      this.emitter.active = true
+      this.emitter.explode(reward)
+      this.jangle.play()
+    } else {
+      this.thump.play()
+    }
+    this.sprite.setFrame(frame)
+  }
+  prime(other) {
     this.other = other
     let key = this.scene.input.keyboard.addKey(this.letter)
     let cb = (p) => {
@@ -79,12 +77,11 @@ export class Chest extends Phaser.GameObjects.Container {
           type = 'mouse'
         }
       }
-      this.emit('chestdone', { value: this.letter, type: type, time: time, reward: this.reward })
+      this.emit('chest_selected', { value: this.letter, type: type, time: time })
       this.disable()
       this.other.disable()
       this.shaker.shake()
     }
-    this.reward = reward
     this.setInteractive(new Phaser.Geom.Rectangle(-110, -110, 220, 220), Phaser.Geom.Rectangle.Contains)
     key.once('down', cb)
     this.once('pointerdown', cb)
