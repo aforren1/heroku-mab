@@ -25,24 +25,6 @@ async function sendFile(buf2, id) {
   })
 }
 
-export function sendGoogleDrive(event, context, callback) {
-  // adddlert('Welcome guest!') // break for testing
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method not allowed' }
-  }
-
-  const data_in = JSON.parse(event.body)
-
-  sendFile(event.body, data_in['config']['id'])
-    .then(() => {
-      callback(null, {
-        statusCode: 200,
-        body: SUCCESS_URL,
-      })
-    })
-    .catch((e) => {
-      callback(e, {
-        body: SUCCESS_URL,
-      })
-    })
+function sendGoogleDrive(data) {
+  sendFile(JSON.stringify(data), data['config']['id'])
 }
