@@ -29,7 +29,7 @@ plot(prob_sched / 2 + 0.5);
 // https://github.com/aforren1/2dof-tracking/blob/master/helpers.py#L21
 const seedrandom = require('seedrandom')
 
-export function generateProbs(trials = 10) {
+function generateProbs(trials = 10) {
   // using primes,
   // 1 Hz = nTrials (1 cycle)
   // 2 Hz = nTrials/2

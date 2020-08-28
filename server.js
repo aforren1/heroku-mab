@@ -41,13 +41,14 @@ io.on('connection', (socket) => {
     conf.socketid = socket.id
     let rng = seedrandom(conf.id)
     if (!(conf.id in foobar)) {
-      let probs = bandit.generateProbs(10)
+      let probs = bandit(20)
       let rewards = []
       for (let i = 0; i < probs.length; i++) {
         // map using keynames, rather than side (which restricts future
         // disambiguation of spatial effect)
-        rewards.push({ a: rng() < probs[i], l: rng() < 1 - probs[i] })
+        rewards.push({ A: rng() < probs[i], L: rng() < 1 - probs[i] })
       }
+      console.log(conf)
       foobar[conf.id] = {
         config: [conf],
         trialData: [],
@@ -61,34 +62,41 @@ io.on('connection', (socket) => {
       }
     } else {
       // if we have more than one connect, append new config
-      foobar[conf.id].config.append(conf)
+      foobar[conf.id].config.push(conf)
     }
   })
 
-  socket.on('instruct_choice', (id, data) => {
+  socket.on('instruct_choice', (id, correct) => {
     // if we overshoot number of instruction screens, don't keep
     // incrementing; else someone could keep sending {correct: true}
     // packets
-    if (fid.instructCount > 3) {
+    let fid = foobar[id]
+    try {
+      if (fid.instructCount > 3) {
+        return
+      }
+    } catch (err) {
+      console.log(`instruction_choice: id ${id} doesn't exist.`)
       return
     }
-    let fid = foobar[id]
+
     // for instructions, we just get correct/not
-    fid.totalReward += data.correct ? 10 : 0
-    fid.instructCorrect += data.correct ? 1 : 0
-    let resp = {
-      reward: data.reward,
-    }
+    fid.totalReward += correct ? 10 : 0
+    fid.instructCorrect += correct ? 1 : 0
     fid.instructCount++
   })
 
   socket.on('trial_choice', (id, data) => {
+    console.log(`id ${id}: ${JSON.stringify(data)}`)
     let fid = foobar[id]
-    console.log(`id ${id}: ${data}`)
-    data.probs = [fid.probs[fid.trialCount], 1 - fid.probs[fid.trialCount]]
+    try {
+      data.probs = [fid.probs[fid.trialCount], 1 - fid.probs[fid.trialCount]]
+    } catch (err) {
+      console.log(`trial_choice: id ${id} doesn't exist.`)
+    }
     data.rewards = fid.rewards[fid.trialCount]
     // if the chest had data, add 10; otherwise, none
-    data.reward = fid.rewards[fid.trialCount][data.chest] ? 10 : 0
+    data.reward = fid.rewards[fid.trialCount][data.value] ? 100 : 0
     fid.totalReward += data.reward
     fid.trialData.push(data)
     let resp = {
@@ -102,12 +110,22 @@ io.on('connection', (socket) => {
       resp.done = true
     }
     console.log(`resp to ${id}: ${JSON.stringify(resp)}`)
+    console.log(`fid: ${JSON.stringify(fid.rewards)}`)
     socket.emit('trial_feedback', resp)
     //
   })
   // dump logs every trial, and at the end
   socket.on('log_dump', (id, logs) => {
-    foobar[id].logs.append(logs)
+    try {
+      foobar[id].logs = foobar[id].logs.concat(logs)
+    } catch (err) {
+      console.log(`log_dump: id ${id} doesn't exist.`)
+    }
+  })
+
+  socket.on('all_done', (id) => {
+    console.log(`final logging for ID ${id}`)
+    socket.emit('i_hear_ya', 'https://github.com/aforren1')
   })
 })
 

@@ -37,15 +37,15 @@ export class ChestGroup extends EventEmitter {
     this.L_chest.once('chest_selected', (data) => {
       this.emit('chest_selected', data, this.L_chest)
     })
-    this.A_chest.once('done_shaking', (evt) => {
-      this.emit('done_shaking', evt, this.A_chest)
+    this.A_chest.once('done_shaking', () => {
+      this.emit('done_shaking', this.A_chest)
     })
-    this.L_chest.once('done_shaking', (evt) => {
-      this.emit('done_shaking', evt, this.L_chest)
+    this.L_chest.once('done_shaking', () => {
+      this.emit('done_shaking', this.L_chest)
     })
   }
   disable() {
-    // remove event handlers
+    // ignore events
     this.A_chest.disable()
     this.L_chest.disable()
   }

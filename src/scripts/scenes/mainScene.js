@@ -3,7 +3,6 @@ import { ChestGroup } from '../objects/chestgroup'
 import { Score } from '../objects/score'
 import { Enum } from '../utils/enum'
 import { generateProbs } from '../../../server/bandit'
-import { globalData } from '../utils/globaldata'
 import { copyObj } from '../utils/copy'
 
 const states = Enum(['FADE_IN', 'MAIN_LOOP', 'FADE_OUT'])
@@ -24,13 +23,6 @@ export default class MainScene extends Phaser.Scene {
 
   get state() {
     return this._state
-  }
-
-  getTrialRes() {
-    let prob = this.probs[this.trial_counter]
-    let left = Math.random() < prob
-    let right = Math.random() < 1 - prob
-    return [left, right]
   }
 
   create(data) {
@@ -55,62 +47,66 @@ export default class MainScene extends Phaser.Scene {
     let score = new Score(this, center, center - 380, 0)
     score.addScore(data.score)
     this.score = score
-    let chest = new ChestGroup(this, center, center, 400, 0)
-    this.chest = chest
+    let chests = new ChestGroup(this, center, center, 400, 0)
+    this.chests = chests
     this.tweens.add({
-      targets: [score, chest],
+      targets: [score, chests],
       alpha: { from: 0, to: 1 },
       duration: 1000,
       onComplete: () => {
         this.state = states.MAIN_LOOP
       },
     })
-    this.probs = generateProbs()
-    globalData.trials = Array()
-    this.trial_counter = 0
   }
   update() {
-    let socket = this.game.socket
+    const socket = this.game.socket
+    const id = this.game.id
+
     switch (this.state) {
       case states.FADE_IN:
         break
       case states.MAIN_LOOP:
         if (this.entering) {
-          log.info(`trial ${this.trial_counter}`)
           this.entering = false
-          this.chest.reset()
-          this.trial_data = {
-            trial: this.trial_counter,
-            probs: [this.probs[this.trial_counter], 1 - this.probs[this.trial_counter]],
-            outcomes: this.getTrialRes(),
-          }
-
-          this.chest.prime(...this.trial_data.outcomes)
+          this.got_feedback = false
+          this.done_shaking = false
+          this.trial_data = {}
+          this.chests.reset()
+          this.chests.prime()
           this.trial_reference_time = window.performance.now()
 
-          this.chest.once('chestdone', (l) => {
-            let cb = () => {}
-            if (l.reward) {
-              cb = () => {
-                this.score.addScore(50)
+          this.chests.once('chest_selected', (data, selection) => {
+            log.info(`Chest ${data.value} selected with RT ${data.time - this.trial_reference_time}`)
+            data.trial_reference_time = this.trial_reference_time
+            socket.emit('trial_choice', id, data)
+            socket.once('trial_feedback', (resp) => {
+              this.got_feedback = true
+              this.trial_data.feedback = resp
+              if (this.done_shaking) {
+                this.events.emit('both_resolved')
               }
-            }
-            socket.emit('trial_choice', globalData.config.id, l)
-            this.time.delayedCall(1000, cb)
-            this.time.delayedCall(2000, () => {
-              this.trial_data.chest = l.value
-              this.trial_data.reference_time = this.trial_reference_time
-              this.trial_data.rt = l.time - this.trial_reference_time
-              this.trial_data.input_type = l.type
-              this.trial_data.reward = l.reward
-              this.trial_data.post_trial_score = this.score.score
-              // store trial data (make a copy)
-              globalData.trials.push(copyObj(this.trial_data))
-              this.entering = true
-              this.trial_counter += 1
-              if (this.trial_counter >= this.probs.length) {
-                this.state = states.FADE_OUT
+            })
+            this.chests.once('done_shaking', (sel) => {
+              this.done_shaking = true
+              this.trial_data.selection = sel
+              if (this.got_feedback) {
+                this.events.emit('both_resolved')
               }
+            })
+            this.events.once('both_resolved', () => {
+              // change state if necessary, show feedback
+              socket.emit('log_dump', id, log.msgs)
+              log.msgs = [] // empty messages
+              let td = this.trial_data
+              td.selection.explode(td.feedback.reward)
+              this.score.addScore(td.feedback.reward)
+              this.time.delayedCall(1000, () => {
+                this.entering = true
+                if (td.feedback.done) {
+                  this.final_score = td.feedback.totalReward
+                  this.state = states.FADE_OUT
+                }
+              })
             })
           })
         }
@@ -119,8 +115,7 @@ export default class MainScene extends Phaser.Scene {
         // save data
         if (this.entering) {
           this.entering = false
-          log.info(`Final score: ${this.score.score}`)
-          globalData.logs = log.msgs
+          log.info(`Final score: ${this.final_score}`)
           // fade out
           this.scene.start('EndScene')
         }

@@ -1,4 +1,4 @@
-import { globalData } from '../utils/globaldata'
+//import { globalData } from '../utils/globaldata'
 import { postData } from '../utils/comms'
 import { Enum } from '../utils/enum'
 import { onBeforeUnload } from '../game'
@@ -13,6 +13,8 @@ export default class EndScene extends Phaser.Scene {
     this.entering = true
   }
   create() {
+    const socket = this.game.socket
+    const id = this.game.id
     let center = this.game.config.height / 2
     this.add
       .text(center, center, 'Fin.', {
@@ -30,19 +32,10 @@ export default class EndScene extends Phaser.Scene {
       .setOrigin(0.5, 0.5)
     window.removeEventListener('beforeunload', onBeforeUnload)
     log.info('onBeforeUnload removed.')
-    Promise.all(postData(globalData)).then((values) => {
-      if (values[0] !== 500 || values[1] !== 500) {
-        // at least one success
-        let tmp = values[0] !== 500 ? values[0] : values[1]
-        //window.location.href = tmp_url
-        tmp.text().then((text) => {
-          window.location.href = text
-        })
-      } else {
-        log.error('Forwarding failed HARD')
-      }
+    socket.emit('all_done', id)
+    socket.once('i_hear_ya', (url) => {
+      console.log(url)
     })
-
     // TODO: validate data in postData
     // TODO: handle successful/unsuccessful post
   }

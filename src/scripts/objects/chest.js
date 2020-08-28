@@ -42,8 +42,38 @@ export class Chest extends Phaser.GameObjects.Container {
     this.shaker.on('complete', () => {
       this.emit('done_shaking')
     })
+
+    let key = this.scene.input.keyboard.addKey(this.letter)
+    let cb = (p) => {
+      if (!this.enabled) {
+        return
+      }
+      // ugh, downTime is mouse and timeDown is keyboard
+      // time shares timebase with window.performance.now()?
+      let time = p.downTime | p.timeDown
+      let type = p.downTime ? 'touch' : 'keyboard'
+      if (type === 'keyboard' && p.originalEvent.repeat) {
+        // reschedule
+        //key.once('down', cb)
+        return
+      }
+      if (type === 'touch') {
+        if (!p.wasTouch) {
+          type = 'mouse'
+        }
+      }
+      this.emit('chest_selected', { value: this.letter, type: type, time: time })
+      this.disable()
+      this.other.disable()
+      this.shaker.shake()
+    }
+    this.setInteractive(new Phaser.Geom.Rectangle(-110, -110, 220, 220), Phaser.Geom.Rectangle.Contains)
+    key.on('down', cb)
+    this.on('pointerdown', cb)
+    this.reset()
   }
   reset() {
+    //this.removeAllListeners()
     this.reward = false
     this.sprite.setFrame(0)
   }
@@ -61,34 +91,12 @@ export class Chest extends Phaser.GameObjects.Container {
   }
   prime(other) {
     this.other = other
-    let key = this.scene.input.keyboard.addKey(this.letter)
-    let cb = (p) => {
-      // ugh, downTime is mouse and timeDown is keyboard
-      // time shares timebase with window.performance.now()?
-      let time = p.downTime | p.timeDown
-      let type = p.downTime ? 'touch' : 'keyboard'
-      if (type === 'keyboard' && p.originalEvent.repeat) {
-        // reschedule
-        key.once('down', cb)
-        return
-      }
-      if (type === 'touch') {
-        if (!p.wasTouch) {
-          type = 'mouse'
-        }
-      }
-      this.emit('chest_selected', { value: this.letter, type: type, time: time })
-      this.disable()
-      this.other.disable()
-      this.shaker.shake()
-    }
-    this.setInteractive(new Phaser.Geom.Rectangle(-110, -110, 220, 220), Phaser.Geom.Rectangle.Contains)
-    key.once('down', cb)
-    this.once('pointerdown', cb)
+    this.enabled = true
   }
   disable() {
-    this.removeAllListeners()
-    this.removeInteractive()
-    this.scene.input.keyboard.removeKey(this.letter)
+    //this.removeAllListeners()
+    this.enabled = false
+    //this.removeInteractive()
+    //this.scene.input.keyboard.removeKey(this.letter)
   }
 }

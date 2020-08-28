@@ -31,14 +31,13 @@ export default class InstructionScene extends Phaser.Scene {
   }
 
   create() {
-    const socket = this.game.socket // bring out the socket
     let center = this.game.config.height / 2
 
     let score = new Score(this, center, center - 380, 0)
     this.score = score
     // ChestGroup is currently just two chests
-    let chest = new ChestGroup(this, center, center + 150, 400, 0)
-    this.chest = chest
+    let chests = new ChestGroup(this, center, center + 150, 400, 0)
+    this.chests = chests
     let text = TypingText(this, center, center - 150, '', {
       fontFamily: 'Arial',
       fontSize: '32px',
@@ -65,7 +64,7 @@ export default class InstructionScene extends Phaser.Scene {
       onUpdate: (t) => {
         let v = Math.floor(t.getValue())
         this.cameras.main.setBackgroundColor(Phaser.Display.Color.GetColor32(0, 0, 0, v))
-        chest.alpha = v / 125
+        chests.alpha = v / 125
         score.alpha = v / 125
       },
       onComplete: () => {
@@ -74,6 +73,8 @@ export default class InstructionScene extends Phaser.Scene {
     })
   }
   update() {
+    const socket = this.game.socket
+    const id = this.game.id
     switch (this.state) {
       case states.FADE_IN:
         // nothing to do-- driven by tween completion
@@ -84,16 +85,21 @@ export default class InstructionScene extends Phaser.Scene {
           this.entering = false
           this.instr_text.visible = true
           this.instr_text.start(texts[0], type_speed)
-          this.chest.reset()
+          this.chests.reset()
           this.instr_text.typing.once('complete', () => {
             // queue up both chests
-            this.chest.prime()
-            this.chest.once('chest_selected', (data, selection) => {
-              this.time.delayedCall(1000, () => {
+            this.chests.prime()
+            this.chests.once('chest_selected', (data, selection) => {
+              socket.emit('instruct_choice', id, data.value === 'L')
+              // TODO: would be better to wait until the particles are done
+              // but it doesn't look like there's a proper event emitted?
+              this.time.delayedCall(2000, () => {
                 this.state = states.INSTRUCT_2
               })
-              this.chest.once('done_shaking', () => {
-                selection.explode(data.letter === 'L' ? 10 : 0)
+              this.chests.once('done_shaking', (sel) => {
+                let pts = data.value === 'L' ? 100 : 0
+                this.score.addScore(pts)
+                sel.explode(pts)
               })
             })
           })
@@ -103,21 +109,21 @@ export default class InstructionScene extends Phaser.Scene {
           log.info('Entering instruct_2')
           this.entering = false
           this.instr_text.start(texts[1], type_speed)
-          this.chest.reset()
+          this.chests.reset()
           this.instr_text.typing.once('complete', () => {
-            this.chest.prime(1, 0)
-            this.chest.once('chestdone', (l) => {
-              let cb = () => {}
-              if (l.reward) {
-                cb = () => {
-                  this.score.addScore(50)
-                }
-              } else {
-                // one attention check missed
-              }
-              this.time.delayedCall(1000, cb)
+            // queue up both chests
+            this.chests.prime()
+            this.chests.once('chest_selected', (data, selection) => {
+              socket.emit('instruct_choice', id, data.value === 'A')
+              // TODO: would be better to wait until the particles are done
+              // but it doesn't look like there's a proper event emitted?
               this.time.delayedCall(2000, () => {
                 this.state = states.FADE_OUT
+              })
+              this.chests.once('done_shaking', (sel) => {
+                let pts = data.value === 'A' ? 100 : 0
+                this.score.addScore(pts)
+                sel.explode(pts)
               })
             })
           })

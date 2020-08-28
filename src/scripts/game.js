@@ -51,7 +51,7 @@ const config = {
   },
 }
 const socket = io()
-
+var id = 0
 window.addEventListener('load', () => {
   // all these should have extra listeners added in the "real" game,
   // so that we can handle comm errors more gracefully (e.g. kick to
@@ -109,11 +109,13 @@ window.addEventListener('load', () => {
   const url_params = new URL(window.location.href).searchParams
   // If coming from prolific, use that ID. Otherwise, generate some random chars
   // localStorage['returning'] should be used to determine if repeat taker
-  // const randomString = (length) => [...Array(length)].map(() => (~~(Math.random() * 36)).toString(36)).join('')
-  let id = url_params.get('PROLIFIC_PID') || socket.id //randomString(10)
+  const randomString = (length) => [...Array(length)].map(() => (~~(Math.random() * 36)).toString(36)).join('')
+  id = url_params.get('PROLIFIC_PID') || randomString(10)
+  // TODO: pass id and socket as separate data, not patched into game!
+  game.id = id
   let user_config = {
-    id: id,
     // if not on prolific, might be all null
+    id: id,
     prolific_config: {
       prolific_pid: url_params.get('PROLIFIC_PID'),
       study_id: url_params.get('STUDY_ID'),
@@ -157,12 +159,14 @@ window.addEventListener('unload', (event) => {
     exits.push(new Date())
   }
   store.setItem('exit_times', JSON.stringify(exits))
+  socket.emit('log_dump', id, log.msgs)
+  log.msgs = [] // empty messages (necessary? we're on the way out anyway...)
 })
 
 // breaks on IE, so dump if that's really a big deal
 // Might be able to polyfill our way out, too?
 window.addEventListener('devtoolschange', (event) => {
   log.warn(`Devtools opened: ${event.detail.isOpen} at time ${window.performance.now()}`)
-  socket.emit('log_dump', log.msgs)
+  socket.emit('log_dump', id, log.msgs)
   log.msgs = [] // empty messages
 })
