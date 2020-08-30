@@ -1,5 +1,3 @@
-//import { globalData } from '../utils/globaldata'
-import { postData } from '../utils/comms'
 import { Enum } from '../utils/enum'
 import { onBeforeUnload } from '../game'
 import log from '../utils/logger'
@@ -32,11 +30,10 @@ export default class EndScene extends Phaser.Scene {
       .setOrigin(0.5, 0.5)
     window.removeEventListener('beforeunload', onBeforeUnload)
     log.info('onBeforeUnload removed.')
-    socket.emit('all_done', id)
-    socket.once('i_hear_ya', (url) => {
-      console.log(url)
+    socket.emit('ending', id) // let the server know we're done
+    socket.on('the_goods', () => {
+
     })
-    // TODO: validate data in postData
-    // TODO: handle successful/unsuccessful post
+    //socket.emit('end', id)
   }
 }

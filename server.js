@@ -35,7 +35,6 @@ io.on('connection', (socket) => {
   socket.on('id_setup', (conf) => {
     // If they already have data, start from that point
     // otherwise,
-    conf.socketid = socket.id
     let rng = seedrandom(conf.id)
     if (!(conf.id in foobar)) {
       let num_trials = 20
@@ -49,6 +48,7 @@ io.on('connection', (socket) => {
       console.log(`setting up id ${conf.id}`)
       foobar[conf.id] = {
         id: conf.id, // redundant, but it's nice to have separated out
+        socketID: socket.id, // for checking later?
         config: [conf],
         trialData: [],
         logs: [],
@@ -134,7 +134,16 @@ io.on('connection', (socket) => {
     }
   })
 
-  socket.on('end', () => {
+  socket.on('ending', (id) => {
+    try {
+
+    } catch (err) {
+
+    }
+  })
+  socket.on('end', (id) => {
+    // TODO: protect this from deleting other people's data?
+    delete foobar[id]
     socket.disconnect(0)
   })
 })
