@@ -111,7 +111,7 @@ io.on('connection', (socket) => {
       return
     }
     data.rewards = fid.rewards[fid.trialCount]
-    // if the chest had data, add 10; otherwise, none
+    // if the chest had data, add 100; otherwise, none
     data.reward = fid.rewards[fid.trialCount][data.value] ? 100 : 0
     fid.totalReward += data.reward
     fid.trialData.push(data)
@@ -120,7 +120,7 @@ io.on('connection', (socket) => {
       reward: data.reward,
       totalReward: fid.totalReward,
     }
-    if (fid.trialCount >= fid.probs.length) {
+    if (fid.trialData.length >= fid.probs.length) {
       // all done
       resp.done = true
       fid.done = true
