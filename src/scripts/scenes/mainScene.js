@@ -2,7 +2,7 @@ import log from '../utils/logger'
 import { ChestGroup } from '../objects/chestgroup'
 import { Score } from '../objects/score'
 import { Enum } from '../utils/enum'
-import { copyObj } from '../utils/copy'
+import { Bonuses } from '../objects/bonuses'
 
 const states = Enum(['FADE_IN', 'MAIN_LOOP', 'FADE_OUT'])
 
@@ -25,6 +25,7 @@ export default class MainScene extends Phaser.Scene {
   }
 
   create(data) {
+    let width = this.game.config.width
     let center = this.game.config.height / 2
     let gogogo = this.add
       .text(center, center - 150, 'GO!', {
@@ -36,24 +37,35 @@ export default class MainScene extends Phaser.Scene {
         strokeThickness: 4,
       })
       .setOrigin(0.5, 0.5)
-    this.tweens.add({
-      targets: gogogo,
-      alpha: { from: 1, to: 0 },
-      ease: 'Cubic',
-      duration: 3000,
-      repeat: 0,
-    })
+    gogogo.alpha = 0
     let score = new Score(this, center, center - 380, 0)
     score.addScore(data.score)
     this.score = score
     let chests = new ChestGroup(this, center, center, 400, 0)
     this.chests = chests
+    this.chests.reset()
+    // TODO: calculate bonuses based on total # of trials
+    this.bonuses = new Bonuses(this, width - 160, 100, data.bonusVals, 0)
     this.tweens.add({
-      targets: [score, chests],
+      targets: chests,
+      alpha: { from: 0, to: 0.5 },
+      duration: 1000,
+    })
+    this.tweens.add({
+      targets: [score, this.bonuses],
       alpha: { from: 0, to: 1 },
       duration: 1000,
       onComplete: () => {
-        this.state = states.MAIN_LOOP
+        this.time.delayedCall(500, () => {
+          this.tweens.add({
+            targets: gogogo,
+            alpha: { from: 1, to: 0 },
+            ease: 'Cubic',
+            duration: 2000,
+            repeat: 0,
+          })
+          this.state = states.MAIN_LOOP
+        })
       },
     })
   }
@@ -70,7 +82,6 @@ export default class MainScene extends Phaser.Scene {
           this.got_feedback = false
           this.done_shaking = false
           this.trial_data = {}
-          this.chests.reset()
           this.chests.prime()
           this.trial_reference_time = window.performance.now()
 
@@ -99,8 +110,11 @@ export default class MainScene extends Phaser.Scene {
               let td = this.trial_data
               td.selection.explode(td.feedback.reward)
               this.score.addScore(td.feedback.reward)
-              this.time.delayedCall(1000, () => {
-                this.entering = true
+              this.chests.once('done_rewarding', () => {
+                this.chests.reset()
+                this.time.delayedCall(500, () => {
+                  this.entering = true
+                })
                 if (td.feedback.done) {
                   this.final_score = td.feedback.totalReward
                   this.state = states.FADE_OUT

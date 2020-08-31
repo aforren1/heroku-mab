@@ -25,10 +25,6 @@ log.methodFactory = function (methodName, logLevel, loggerName) {
   }
 }
 
-log.toJSON = function () {
-  return JSON.stringify(this.msgs)
-}
-
 log.setLevel(log.getLevel())
 log.setLevel('debug')
 export default log

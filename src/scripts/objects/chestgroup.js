@@ -43,6 +43,12 @@ export class ChestGroup extends EventEmitter {
     this.L_chest.once('done_shaking', () => {
       this.emit('done_shaking', this.L_chest)
     })
+    this.A_chest.once('done_rewarding', () => {
+      this.emit('done_rewarding')
+    })
+    this.L_chest.once('done_rewarding', () => {
+      this.emit('done_rewarding')
+    })
   }
   disable() {
     // ignore events

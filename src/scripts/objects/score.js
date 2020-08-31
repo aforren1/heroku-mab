@@ -3,7 +3,13 @@ export class Score extends Phaser.GameObjects.Container {
     // let rect = scene.add.rexRoundRectangle(0, 0, 250, 100, 8, 0xdaa878).setOrigin(0.5, 0.5).setStrokeStyle(8, 0xfece66)
     let scroll = scene.add.image(0, 0, 'scroll', 0).setOrigin(0.5, 0.5)
     let text = scene.add
-      .text(0, 0, '0', { fontFamily: 'Arial', fontSize: 64, align: 'center', stroke: '#000', strokeThickness: 4 })
+      .text(0, 0, '0', {
+        fontFamily: 'Georgia',
+        fontSize: 80,
+        align: 'center',
+        stroke: '#000',
+        strokeThickness: 4,
+      })
       .setOrigin(0.5, 0.5)
     super(scene, x, y, [scroll, text])
     this.text = text

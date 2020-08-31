@@ -23,10 +23,12 @@ export default class TitleScene extends Phaser.Scene {
       })
       .setOrigin(0.5, 0.5)
     let txt = this.add
-      .text(center, center + 300, 'Click here or\npress [ENTER] to start.', {
-        fontFamily: 'Arial',
+      .text(center, center + 300, 'Click here or\npress the [ENTER] key\nto start.', {
+        fontFamily: 'Georgia',
+        fontStyle: 'bold',
         fontSize: 64,
-        stroke: '#000',
+        color: '#ffef9b',
+        stroke: '#444444',
         strokeThickness: 6,
         align: 'center',
       })

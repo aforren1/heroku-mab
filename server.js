@@ -60,6 +60,11 @@ io.on('connection', (socket) => {
         instructCount: 0,
         instructCorrect: 0,
         done: false,
+        bonusValues: [
+          Math.floor(0.9 * num_trials) * 100,
+          Math.floor(0.75 * num_trials) * 100,
+          Math.floor(0.6 * num_trials) * 100,
+        ],
       }
     } else {
       // if we have more than one connect, append new config
@@ -87,6 +92,15 @@ io.on('connection', (socket) => {
     fid.instructCount++
   })
 
+  socket.on('gimme_bonuses', (id) => {
+    let fid = foobar[id]
+    try {
+      socket.emit('the_bonuses_are', fid.bonusValues)
+    } catch (err) {
+      console.log(`gimme_bonuses: id ${id} doesn't have bonuses because err: ${err}`)
+    }
+  })
+
   socket.on('trial_choice', (id, data) => {
     // console.log(`id ${id}: ${JSON.stringify(data)}`)
     let fid = foobar[id]
@@ -106,7 +120,6 @@ io.on('connection', (socket) => {
       reward: data.reward,
       totalReward: fid.totalReward,
     }
-    fid.trialCount++ // increment trial counter
     if (fid.trialCount >= fid.probs.length) {
       // all done
       resp.done = true
@@ -117,6 +130,8 @@ io.on('connection', (socket) => {
       } catch (err) {
         console.log(`Data sending error: ${err}`)
       }
+    } else {
+      fid.trialCount++ // increment trial counter
     }
     //console.log(`resp to ${id}: ${JSON.stringify(resp)}`)
     socket.emit('trial_feedback', resp)

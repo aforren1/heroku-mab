@@ -13,3 +13,5 @@
 - GOOGLE_DRIVE_JSON: JSON string containing Google service account creds
 - MAILGUN_API_KEY: key for sending emails
 - MAILGUN_DOMAIN: domain for sending emails
+
+Local test via `npm run build && heroku local`

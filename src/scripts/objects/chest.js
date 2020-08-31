@@ -5,9 +5,9 @@ export class Chest extends Phaser.GameObjects.Container {
     let box = scene.add.rectangle(-35, 80, 80, 80, '#999999', 0.7).setStrokeStyle(2, '#000000')
     let letter_txt = scene.add
       .text(-35, 80, letter, {
-        fontFamily: 'Arial',
+        fontFamily: 'Georgia',
         fontSize: 80,
-        color: '#FFF',
+        color: '#ffef9b',
         align: 'center',
       })
       .setOrigin(0.5, 0.5)
@@ -35,7 +35,7 @@ export class Chest extends Phaser.GameObjects.Container {
     })
 
     this.shaker = scene.plugins.get('rexShakePosition').add(this, {
-      duration: 1000,
+      duration: 500,
       magnitude: 5,
     })
     // 0 is closed, 1 is empty, 2 is full
@@ -53,8 +53,6 @@ export class Chest extends Phaser.GameObjects.Container {
       let time = p.downTime | p.timeDown
       let type = p.downTime ? 'touch' : 'keyboard'
       if (type === 'keyboard' && p.originalEvent.repeat) {
-        // reschedule
-        //key.once('down', cb)
         return
       }
       if (type === 'touch') {
@@ -73,7 +71,6 @@ export class Chest extends Phaser.GameObjects.Container {
     this.reset()
   }
   reset() {
-    //this.removeAllListeners()
     this.reward = false
     this.sprite.setFrame(0)
   }
@@ -88,10 +85,18 @@ export class Chest extends Phaser.GameObjects.Container {
       this.thump.play()
     }
     this.sprite.setFrame(frame)
+    // after 1000ms, emit another event to indicate end of reward period
+    this.scene.time.delayedCall(1000, () => {
+      this.emit('done_rewarding')
+      this.alpha = 0.5
+      this.other.alpha = 0.5
+    })
   }
   prime(other) {
     this.other = other
     this.enabled = true
+    this.alpha = 1
+    this.other.alpha = 1
   }
   disable() {
     //this.removeAllListeners()
