@@ -28,12 +28,14 @@ export default class EndScene extends Phaser.Scene {
         },
       })
       .setOrigin(0.5, 0.5)
+    // TODO: do we need to bother?
     window.removeEventListener('beforeunload', onBeforeUnload)
     log.info('onBeforeUnload removed.')
     socket.emit('ending', id) // let the server know we're done
-    socket.on('the_goods', () => {
-
+    socket.on('the_goods', (resp) => {
+      // redirect to resp.successURL
+      // final score is resp.finalScore
+      window.location.href = resp.successURL
     })
-    //socket.emit('end', id)
   }
 }

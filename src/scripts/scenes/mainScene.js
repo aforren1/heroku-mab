@@ -2,7 +2,6 @@ import log from '../utils/logger'
 import { ChestGroup } from '../objects/chestgroup'
 import { Score } from '../objects/score'
 import { Enum } from '../utils/enum'
-import { generateProbs } from '../../../server/bandit'
 import { copyObj } from '../utils/copy'
 
 const states = Enum(['FADE_IN', 'MAIN_LOOP', 'FADE_OUT'])

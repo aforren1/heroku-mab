@@ -59,10 +59,11 @@ io.on('connection', (socket) => {
         totalReward: 0,
         instructCount: 0,
         instructCorrect: 0,
-        done: false
+        done: false,
       }
     } else {
       // if we have more than one connect, append new config
+      console.log(`restarting id ${conf.id}`)
       foobar[conf.id].config.push(conf)
     }
   })
@@ -87,7 +88,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('trial_choice', (id, data) => {
-    console.log(`id ${id}: ${JSON.stringify(data)}`)
+    // console.log(`id ${id}: ${JSON.stringify(data)}`)
     let fid = foobar[id]
     try {
       data.probs = [fid.probs[fid.trialCount], 1 - fid.probs[fid.trialCount]]
@@ -104,24 +105,20 @@ io.on('connection', (socket) => {
       done: false,
       reward: data.reward,
       totalReward: fid.totalReward,
-      successURL: 'https://www.google.com'
     }
     fid.trialCount++ // increment trial counter
     if (fid.trialCount >= fid.probs.length) {
       // all done
       resp.done = true
       fid.done = true
-      resp.successURL = process.env.SUCCESS_URL
       console.log(`final logging for ID ${id}`)
       try {
         writeData(fid)
-        // clear out data
-        delete foobar[id]
       } catch (err) {
         console.log(`Data sending error: ${err}`)
       }
     }
-    console.log(`resp to ${id}: ${JSON.stringify(resp)}`)
+    //console.log(`resp to ${id}: ${JSON.stringify(resp)}`)
     socket.emit('trial_feedback', resp)
     //
   })
@@ -135,16 +132,20 @@ io.on('connection', (socket) => {
   })
 
   socket.on('ending', (id) => {
+    let fid = foobar[id]
     try {
-
+      // if done, sub in
+      let resp = { successURL: 'https://www.google.com', finalScore: fid.totalReward }
+      if (fid.done) {
+        resp.successURL = process.env.SUCCESS_URL
+      }
+      socket.emit('the_goods', resp)
+      // TODO: protect this from deleting other people's data?
+      delete foobar[id]
+      socket.disconnect(0)
     } catch (err) {
-
+      console.log(`ending: issue with ${id}. Err: ${err}`)
     }
-  })
-  socket.on('end', (id) => {
-    // TODO: protect this from deleting other people's data?
-    delete foobar[id]
-    socket.disconnect(0)
   })
 })
 

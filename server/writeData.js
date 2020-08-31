@@ -1,11 +1,10 @@
 const API_KEY = process.env.MAILGUN_API_KEY
 const DOMAIN = process.env.MAILGUN_DOMAIN
-//const GOOGLE_JSON = JSON.parse(process.env.GOOGLE_DRIVE_JSON)
-const GOOGLE_JSON = JSON.parse('{}')
+const GOOGLE_JSON = JSON.parse(process.env.GOOGLE_DRIVE_JSON)
 const FOLDER_ID = '1oRsAXm-gCwDWFefxOkTc8eOLpx8RzIZG'
 
 const { google } = require('googleapis')
-//const mailgun = require('mailgun-js')({ apiKey: API_KEY, domain: DOMAIN })
+const mailgun = require('mailgun-js')({ apiKey: API_KEY, domain: DOMAIN })
 
 function sendMailgun(data, id) {
   let buf = new Buffer.from(JSON.stringify(data), 'utf8')
@@ -28,6 +27,8 @@ function sendMailgun(data, id) {
   mailgun.messages().send(email, function (error, body) {
     if (error) {
       console.log(`Error sending Mailgun data for ${id}, err msg: ${error}`)
+    } else {
+      console.log(`Successfully sent data for ${data['id']} via Mailgun.`)
     }
   })
 }
@@ -55,11 +56,13 @@ async function sendGoogleFile(data, id) {
 
 function writeData(data) {
   sendMailgun(data, data['id'])
-  sendGoogleFile(data, data['id']).then(() => {
-    console.log(`Successfully saved data for ${data['id']} to Google Drive.`)
-  }).catch((e) => {
-    console.log(`Error saving Google Drive data for ${data['id']}, err msg: ${e}`)
-  })
+  sendGoogleFile(data, data['id'])
+    .then(() => {
+      console.log(`Successfully saved data for ${data['id']} to Google Drive.`)
+    })
+    .catch((e) => {
+      console.log(`Error saving Google Drive data for ${data['id']}, err msg: ${e}`)
+    })
 }
 
 module.exports = writeData
