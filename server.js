@@ -36,42 +36,48 @@ io.on('connection', (socket) => {
     // If they already have data, start from that point
     // otherwise,
     let rng = seedrandom(conf.id)
-    if (!(conf.id in foobar)) {
-      let num_trials = 10
-      let probs = bandit(num_trials) // TODO: number of trials needs to be more easily configurable?
-      let rewards = []
-      for (let i = 0; i < probs.length; i++) {
-        // map using keynames, rather than side (which restricts future
-        // disambiguation of spatial effect)
-        rewards.push({ A: rng() < probs[i], L: rng() < 1 - probs[i] })
-      }
-      console.log(`setting up id ${conf.id}`)
-      foobar[conf.id] = {
-        id: conf.id, // redundant, but it's nice to have separated out
-        socketID: socket.id, // for checking later?
-        config: [conf],
-        trialData: [],
-        logs: [],
-        numTrials: num_trials,
-        probs: probs,
-        rewards: rewards,
-        trialCount: 0,
-        totalReward: 0,
-        instructCount: 0,
-        instructCorrect: 0,
-        done: false,
-        startDate: new Date(),
-        endDate: null,
-        bonusValues: [
-          Math.floor(0.8 * num_trials) * 100,
-          Math.floor(0.7 * num_trials) * 100,
-          Math.floor(0.6 * num_trials) * 100,
-        ],
-      }
-    } else {
-      // if we have more than one connect, append new config
-      console.log(`restarting id ${conf.id}`)
-      foobar[conf.id].config.push(conf)
+    let num_trials = 10
+    let probs = bandit(num_trials) // TODO: number of trials needs to be more easily configurable?
+    let rewards = []
+    for (let i = 0; i < probs.length; i++) {
+      // map using keynames, rather than side (which restricts future
+      // disambiguation of spatial effect)
+      rewards.push({ A: rng() < probs[i], L: rng() < 1 - probs[i] })
+    }
+    console.log(`setting up id ${conf.id}`)
+    // if they've been here before, nuke the previous data
+    // but keep track of # of returns, and carry logs over
+    let returning = 0
+    logs = []
+    if (conf.id in foobar) {
+      let prev_times = foobar[conf.id].returning + 1
+      console.log(`id ${conf.id} is a returning customer. Time # ${prev_times}`)
+      returning = prev_times
+      logs = foobar[conf.id].logs
+    }
+
+    foobar[conf.id] = {
+      id: conf.id, // redundant, but it's nice to have separated out
+      socketID: socket.id, // for checking later?
+      config: conf,
+      trialData: [],
+      logs: logs,
+      numTrials: num_trials,
+      probs: probs,
+      rewards: rewards,
+      trialCount: 0,
+      totalReward: 0,
+      instructCount: 0,
+      instructCorrect: 0,
+      done: false,
+      startDate: new Date(),
+      endDate: null,
+      bonusValues: [
+        Math.floor(0.8 * num_trials) * 100,
+        Math.floor(0.7 * num_trials) * 100,
+        Math.floor(0.6 * num_trials) * 100,
+      ],
+      returning: returning,
     }
   })
 

@@ -10,7 +10,7 @@
 7. A few config vars need to be set in Heroku (& in a local .env file?)
 
 - SUCCESS_URL: Where to redirect upon completion
-- GOOGLE_DRIVE_JSON: JSON string containing Google service account creds
+- GOOGLE_DRIVE_JSON: JSON string containing Google service account creds (NB: run through JSON.stringify)
 - MAILGUN_API_KEY: key for sending emails
 - MAILGUN_DOMAIN: domain for sending emails
 

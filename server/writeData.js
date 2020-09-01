@@ -22,7 +22,7 @@ function sendMailgun(data, id) {
   ID: ${data.id}
   start date: ${data.startDate}
   end date: ${data.endDate}
-  latest config: ${JSON.stringify(data.config[data.config.length - 1], null, 2)}
+  latest config: ${JSON.stringify(data.config, null, 2)}
   number of configs: ${data.config.length}
   number of instructions: 3 (this is fixed)
   correct responses in instruct: ${data.instructCorrect}
@@ -30,7 +30,9 @@ function sendMailgun(data, id) {
   reward achieved: ${data.totalReward}
   bonus values (+$2, $1, $0.5): ${data.bonusValues}
   done flag set: ${data.done}
+  number of returns: ${data.returning}
 
+  Search the logs for warnings!
   ------------------
   logs: ${JSON.stringify(data.logs, null, 2)}
   `
