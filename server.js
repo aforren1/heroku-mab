@@ -48,7 +48,7 @@ io.on('connection', (socket) => {
     // if they've been here before, nuke the previous data
     // but keep track of # of returns, and carry logs over
     let returning = 0
-    logs = []
+    let logs = []
     if (conf.id in foobar) {
       let prev_times = foobar[conf.id].returning + 1
       console.log(`id ${conf.id} is a returning customer. Time # ${prev_times}`)
