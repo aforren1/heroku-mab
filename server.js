@@ -9,6 +9,7 @@ const seedrandom = require('seedrandom')
 const bandit = require('./server/bandit')
 const writeData = require('./server/writeData')
 
+const num_trials = 5
 // access via process.env.* (both for local and Heroku env vars)
 dotenv.config()
 const PORT = process.env.PORT || 3000
@@ -17,7 +18,7 @@ const app = express()
 app.set('appPath', 'dist')
 app.use(express.static(__dirname + '/dist'))
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'))
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'))
 })
 const server = app.listen(PORT, () => {
   console.log(`Listening on ${PORT}`)
@@ -36,7 +37,6 @@ io.on('connection', (socket) => {
     // If they already have data, start from that point
     // otherwise,
     let rng = seedrandom(conf.id)
-    let num_trials = 10
     let probs = bandit(num_trials) // TODO: number of trials needs to be more easily configurable?
     let rewards = []
     for (let i = 0; i < probs.length; i++) {
