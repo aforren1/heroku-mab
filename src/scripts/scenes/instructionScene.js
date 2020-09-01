@@ -5,7 +5,7 @@ import { Score } from '../objects/score'
 import { Enum } from '../utils/enum'
 import { Bonuses } from '../objects/bonuses'
 const states = Enum(['FADE_IN', 'INSTRUCT_1', 'INSTRUCT_2', 'INSTRUCT_3', 'FADE_OUT'])
-const type_speed = 10 // 50 for real deal
+const type_speed = 50 // 50 for real deal
 
 let texts = [
   'Try to collect the most [color=yellow]treasure[/color]!\n\nSelect the treasure chest on the right side, either by clicking it or pressing the "L" key.',

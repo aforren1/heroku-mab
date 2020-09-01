@@ -16,11 +16,30 @@ function sendMailgun(data, id) {
     knownLength: buf.length,
   })
 
+  let email_content = `
+  Here's the scoop:
+
+  ID: ${data.id}
+  start date: ${data.startDate}
+  end date: ${data.endDate}
+  latest config: ${JSON.stringify(data.config[data.config.length - 1], null, 2)}
+  number of configs: ${data.config.length}
+  number of instructions: 3 (this is fixed)
+  correct responses in instruct: ${data.instructCorrect}
+  number of trials: ${data.numTrials}
+  reward achieved: ${data.totalReward}
+  bonus values (+$2, $1, $0.5): ${data.bonusValues}
+  done flag set: ${data.done}
+
+  ------------------
+  logs: ${JSON.stringify(data.logs, null, 2)}
+  `
+
   let email = {
-    from: "Alex 'Mailgun' Forrence <mailgun@" + DOMAIN + '>',
+    from: 'The Mailgun Machine <mailgun@' + DOMAIN + '>',
     to: 'actlab@yale.edu',
-    subject: `Fresh data from ${id}`,
-    text: 'see attached',
+    subject: `[2-armed-bandit] Hot off the presses! Data from ${id}`,
+    text: email_content,
     attachment: attach,
   }
 

@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
     // otherwise,
     let rng = seedrandom(conf.id)
     if (!(conf.id in foobar)) {
-      let num_trials = 2
+      let num_trials = 10
       let probs = bandit(num_trials) // TODO: number of trials needs to be more easily configurable?
       let rewards = []
       for (let i = 0; i < probs.length; i++) {
@@ -60,9 +60,11 @@ io.on('connection', (socket) => {
         instructCount: 0,
         instructCorrect: 0,
         done: false,
+        startDate: new Date(),
+        endDate: null,
         bonusValues: [
-          Math.floor(0.9 * num_trials) * 100,
-          Math.floor(0.75 * num_trials) * 100,
+          Math.floor(0.8 * num_trials) * 100,
+          Math.floor(0.7 * num_trials) * 100,
           Math.floor(0.6 * num_trials) * 100,
         ],
       }
@@ -124,6 +126,7 @@ io.on('connection', (socket) => {
       // all done
       resp.done = true
       fid.done = true
+      fid.endDate = new Date()
       console.log(`final logging for ID ${id}`)
       try {
         writeData(fid)

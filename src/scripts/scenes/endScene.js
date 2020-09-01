@@ -28,7 +28,7 @@ export default class EndScene extends Phaser.Scene {
       .rexBBCodeText(
         center,
         center,
-        `[stroke]Thank you for participating!\nFinal score: [color=${color}]${data.finalScore}[/color]\nAutomatically redirecting\nin 5 seconds...[/stroke]`,
+        `[stroke]Thank you for participating!\nFinal score: [color=${color}]${data.finalScore}[/color]\nAutomatically redirecting\nin 10 seconds...[/stroke]`,
         {
           fontFamily: 'Georgia',
           fontSize: 60,
@@ -39,6 +39,8 @@ export default class EndScene extends Phaser.Scene {
         }
       )
       .setOrigin(0.5, 0.5)
+    // darken background slightly
+    this.cameras.main.setBackgroundColor(Phaser.Display.Color.GetColor32(0, 0, 0, 125))
     // TODO: do we need to bother?
     window.removeEventListener('beforeunload', onBeforeUnload)
     log.info('onBeforeUnload removed.')
