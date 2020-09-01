@@ -44,7 +44,6 @@ export default class MainScene extends Phaser.Scene {
     let chests = new ChestGroup(this, center, center, 400, 0)
     this.chests = chests
     this.chests.reset()
-    // TODO: calculate bonuses based on total # of trials
     this.bonuses = new Bonuses(this, width - 160, 100, data.bonusVals, 0)
     this.bonusVals = data.bonusVals
     this.tweens.add({

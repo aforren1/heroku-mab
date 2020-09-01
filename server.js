@@ -9,7 +9,7 @@ const seedrandom = require('seedrandom')
 const bandit = require('./server/bandit')
 const writeData = require('./server/writeData')
 
-const num_trials = 5
+const num_trials = 200
 // access via process.env.* (both for local and Heroku env vars)
 dotenv.config()
 const PORT = process.env.PORT || 3000

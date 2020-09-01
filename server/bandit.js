@@ -41,8 +41,6 @@ function generateProbs(trials = 10) {
   //const baseAmp = 0.889 // max possible amplitude *just* shy of 1
   //const amps = freqs.map((x) => baseAmp / x)
   const amps = [0.2, 0.2, 0.2, 0.2, 0.2]
-  // TODO: set with something seedable!
-  // e.g. https://github.com/davidbau/seedrandom
   const phases = [...Array(freqs.length)].map((_, i) => rng() * 2 * Math.PI)
   const t = Array.from({ length: trials }, (x, i) => i / trials)
   let probs = Array(trials).fill(0)

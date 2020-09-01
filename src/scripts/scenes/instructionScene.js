@@ -43,7 +43,6 @@ export default class InstructionScene extends Phaser.Scene {
     let chests = new ChestGroup(this, center, center + 150, 400, 0)
     this.chests = chests
     this.chests.reset()
-    // TODO: calculate bonuses based on total # of trials
     socket.emit('gimme_bonuses', id)
     socket.once('the_bonuses_are', (vals) => {
       this.bonuses = new Bonuses(this, width - 160, 100, vals, 0)
