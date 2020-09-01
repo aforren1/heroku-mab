@@ -1,19 +1,20 @@
 let penv = process.env
 const API_KEY = penv.MAILGUN_API_KEY
 const DOMAIN = penv.MAILGUN_DOMAIN
-//const GOOGLE_JSON = JSON.parse(process.env.GOOGLE_DRIVE_JSON)
-const GOOGLE_JSON = {
-  type: penv.DRIVE_TYPE,
-  project_id: penv.DRIVE_PROJECT_ID,
-  private_key_id: penv.DRIVE_PRIVATE_KEY_ID,
-  private_key: penv.DRIVE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-  client_email: penv.DRIVE_CLIENT_EMAIL,
-  client_id: penv.DRIVE_CLIENT_ID,
-  auth_uri: penv.DRIVE_AUTH_URI,
-  token_uri: penv.DRIVE_TOKEN_URI,
-  auth_provider_x509_cert_url: penv.DRIVE_AUTH_PROVIDER_X509_CERT_URL,
-  client_x509_cert_url: penv.DRIVE_CLIENT_X509_CERT_URL,
-}
+const GOOGLE_JSON = JSON.parse(penv.GOOGLE_DRIVE_JSON)
+GOOGLE_JSON.private_key = GOOGLE_JSON.private_key.replace(/\\n/g, '\n')
+// const GOOGLE_JSON = {
+//   type: penv.DRIVE_TYPE,
+//   project_id: penv.DRIVE_PROJECT_ID,
+//   private_key_id: penv.DRIVE_PRIVATE_KEY_ID,
+//   private_key: penv.DRIVE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+//   client_email: penv.DRIVE_CLIENT_EMAIL,
+//   client_id: penv.DRIVE_CLIENT_ID,
+//   auth_uri: penv.DRIVE_AUTH_URI,
+//   token_uri: penv.DRIVE_TOKEN_URI,
+//   auth_provider_x509_cert_url: penv.DRIVE_AUTH_PROVIDER_X509_CERT_URL,
+//   client_x509_cert_url: penv.DRIVE_CLIENT_X509_CERT_URL,
+// }
 
 const FOLDER_ID = '1oRsAXm-gCwDWFefxOkTc8eOLpx8RzIZG'
 
