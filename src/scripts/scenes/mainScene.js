@@ -46,6 +46,7 @@ export default class MainScene extends Phaser.Scene {
     this.chests.reset()
     // TODO: calculate bonuses based on total # of trials
     this.bonuses = new Bonuses(this, width - 160, 100, data.bonusVals, 0)
+    this.bonusVals = data.bonusVals
     this.tweens.add({
       targets: chests,
       alpha: { from: 0, to: 0.5 },
@@ -116,23 +117,35 @@ export default class MainScene extends Phaser.Scene {
                   this.entering = true
                 })
                 if (td.feedback.done) {
-                  this.final_score = td.feedback.totalReward
+                  this.finalScore = td.feedback.totalReward
                   this.state = states.FADE_OUT
                 }
               })
             })
           })
         }
-        break
       case states.FADE_OUT:
         // save data
         if (this.entering) {
           this.entering = false
-          log.info(`Final score: ${this.final_score}`)
+          log.info(`Ending game. Final score: ${this.finalScore}`)
           // fade out
-          this.scene.start('EndScene')
+          this.tweens.addCounter({
+            from: 255,
+            to: 0,
+            duration: 2000,
+            onUpdate: (t) => {
+              let v = Math.floor(t.getValue())
+              this.cameras.main.setAlpha(v / 255)
+            },
+            onComplete: () => {
+              this.scene.start('EndScene', {
+                finalScore: this.finalScore,
+                bonusVals: this.bonusVals,
+              })
+            },
+          })
         }
-        break
     }
   }
 }

@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
     // otherwise,
     let rng = seedrandom(conf.id)
     if (!(conf.id in foobar)) {
-      let num_trials = 20
+      let num_trials = 2
       let probs = bandit(num_trials) // TODO: number of trials needs to be more easily configurable?
       let rewards = []
       for (let i = 0; i < probs.length; i++) {
@@ -106,13 +106,13 @@ io.on('connection', (socket) => {
     let fid = foobar[id]
     try {
       data.probs = [fid.probs[fid.trialCount], 1 - fid.probs[fid.trialCount]]
+      data.rewards = fid.rewards[fid.trialCount]
+      // if the chest had data, add 100; otherwise, none
+      data.reward = fid.rewards[fid.trialCount][data.value] ? 100 : 0
     } catch (err) {
       console.log(`trial_choice: id ${id} doesn't exist. Err: ${err}`)
       return
     }
-    data.rewards = fid.rewards[fid.trialCount]
-    // if the chest had data, add 100; otherwise, none
-    data.reward = fid.rewards[fid.trialCount][data.value] ? 100 : 0
     fid.totalReward += data.reward
     fid.trialData.push(data)
     let resp = {

@@ -1,5 +1,7 @@
-import 'phaser' // TODO: split phaser imports up to let those trees shake
 import '@babel/polyfill'
+//import Phaser from 'phaser'
+import Phaser from './phaser-custom' // TODO: split phaser imports up to let those trees shake
+
 import log from './utils/logger'
 import 'devtools-detect'
 import UAParser from 'ua-parser-js'

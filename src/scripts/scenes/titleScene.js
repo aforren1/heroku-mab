@@ -8,6 +8,12 @@ export default class TitleScene extends Phaser.Scene {
   create() {
     let height = this.game.config.height
     let center = height / 2
+    this.jangle = this.sound.add('jangle')
+    // little icon in the corner indicating audio is used, but optional
+    this.add
+      .image(15, height - 15, 'optional_audio')
+      .setOrigin(0, 1)
+      .setScale(0.45, 0.45)
     this.add
       .text(center, center - 300, 'Treasure Hunt', {
         fontFamily: 'title_font',
@@ -59,6 +65,7 @@ export default class TitleScene extends Phaser.Scene {
     }
 
     let cb = () => {
+      this.jangle.play()
       log.info('Starting instruction scene.')
       txt.removeInteractive()
       this.tweens.addCounter({

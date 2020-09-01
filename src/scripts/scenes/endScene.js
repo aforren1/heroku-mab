@@ -10,32 +10,45 @@ export default class EndScene extends Phaser.Scene {
     this._state = states.FADE_IN
     this.entering = true
   }
-  create() {
+  create(data) {
     const socket = this.game.socket
     const id = this.game.id
     let center = this.game.config.height / 2
+    let color = '#ffffff'
+    let score = data.finalScore
+    let bonuses = data.bonusVals
+    if (score >= bonuses[0]) {
+      color = '#ffd700'
+    } else if (score >= bonuses[1]) {
+      color = '#C0C0C0'
+    } else if (score >= bonuses[2]) {
+      color = '#cd7f32'
+    }
     this.add
-      .text(center, center, 'Fin.', {
-        fontFamily: 'title_font',
-        fontSize: 160,
-        color: '#D2B48C',
-        stroke: '#000',
-        strokeThickness: 2,
-        align: 'center',
-        padding: {
-          x: 64,
-          y: 64,
-        },
-      })
+      .rexBBCodeText(
+        center,
+        center,
+        `[stroke]Thank you for participating!\nFinal score: [color=${color}]${data.finalScore}[/color]\nAutomatically redirecting\nin 5 seconds...[/stroke]`,
+        {
+          fontFamily: 'Georgia',
+          fontSize: 60,
+          color: '#ffffff',
+          stroke: 'black',
+          strokeThickness: 4,
+          align: 'center',
+        }
+      )
       .setOrigin(0.5, 0.5)
     // TODO: do we need to bother?
     window.removeEventListener('beforeunload', onBeforeUnload)
     log.info('onBeforeUnload removed.')
     socket.emit('ending', id) // let the server know we're done
-    socket.on('the_goods', (resp) => {
-      // redirect to resp.successURL
-      // final score is resp.finalScore
-      window.location.href = resp.successURL
+    socket.once('the_goods', (resp) => {
+      this.time.delayedCall(10000, () => {
+        // redirect to resp.successURL
+        // final score is resp.finalScore
+        window.location.href = resp.successURL
+      })
     })
   }
 }

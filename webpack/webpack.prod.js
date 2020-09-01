@@ -39,8 +39,18 @@ const prod = {
       },
     },
   },
+  module: {
+    rules: [
+      {
+        test: /\.(gif|png|jpe?g|svg|xml)$/i,
+        use: 'file-loader',
+      },
+    ],
+  },
   plugins: [
-    new CleanWebpackPlugin({ cleanOnceBeforeBuildPatterns: [path.resolve(__dirname, '../dist/*.js')] }),
+    new CleanWebpackPlugin({
+      cleanOnceBeforeBuildPatterns: [path.resolve(__dirname, '../dist/*.js')],
+    }),
     new JavaScriptObfuscator(
       {
         rotateStringArray: true,
