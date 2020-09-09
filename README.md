@@ -18,4 +18,11 @@ Local test via `npm run build && heroku local`
 
 URL:
 
-https://actlabyale.github.io/web-consent?dest=https://mabactlab.herokuapp.com/&PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}
+Original: https://mabactlab.herokuapp.com
+scalar reward: https://mabactlab-scalar.herokuapp.com
+
+example:
+
+https://actlabyale.github.io/web-consent?dest=https://mabactlab-scalar.herokuapp.com/&PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}
+
+(make another deployment for a separate branch, e.g. `heroku create mabactlab-scalar --remote scalar`)
