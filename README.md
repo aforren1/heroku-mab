@@ -15,3 +15,7 @@
 - MAILGUN_DOMAIN: domain for sending emails
 
 Local test via `npm run build && heroku local`
+
+URL:
+
+https://actlabyale.github.io/web-consent?dest=https://mabactlab.herokuapp.com/&PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}
