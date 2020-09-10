@@ -26,3 +26,4 @@ example:
 https://actlabyale.github.io/web-consent?dest=https://mabactlab-scalar.herokuapp.com/&PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}
 
 (make another deployment for a separate branch, e.g. `heroku create mabactlab-scalar --remote scalar`)
+https://devcenter.heroku.com/articles/multiple-environments

@@ -2,7 +2,6 @@ import log from '../utils/logger'
 import { ChestGroup } from '../objects/chestgroup'
 import { Score } from '../objects/score'
 import { Enum } from '../utils/enum'
-import { Bonuses } from '../objects/bonuses'
 
 const states = Enum(['FADE_IN', 'MAIN_LOOP', 'FADE_OUT'])
 
@@ -44,15 +43,13 @@ export default class MainScene extends Phaser.Scene {
     let chests = new ChestGroup(this, center, center, 400, 0)
     this.chests = chests
     this.chests.reset()
-    this.bonuses = new Bonuses(this, width - 160, 100, data.bonusVals, 0)
-    this.bonusVals = data.bonusVals
     this.tweens.add({
       targets: chests,
       alpha: { from: 0, to: 0.5 },
       duration: 1000,
     })
     this.tweens.add({
-      targets: [score, this.bonuses],
+      targets: [score],
       alpha: { from: 0, to: 1 },
       duration: 1000,
       onComplete: () => {
@@ -140,7 +137,6 @@ export default class MainScene extends Phaser.Scene {
             onComplete: () => {
               this.scene.start('EndScene', {
                 finalScore: this.finalScore,
-                bonusVals: this.bonusVals,
               })
             },
           })

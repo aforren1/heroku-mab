@@ -42,7 +42,8 @@ io.on('connection', (socket) => {
     for (let i = 0; i < probs.length; i++) {
       // map using keynames, rather than side (which restricts future
       // disambiguation of spatial effect)
-      rewards.push({ A: rng() < probs[i], L: rng() < 1 - probs[i] })
+      let foo = Math.floor(probs[i] * 100)
+      rewards.push({ A: foo, L: 100 - foo })
     }
     console.log(`setting up id ${conf.id}`)
     // if they've been here before, nuke the previous data
@@ -72,11 +73,6 @@ io.on('connection', (socket) => {
       done: false,
       startDate: new Date(),
       endDate: null,
-      bonusValues: [
-        Math.floor(0.8 * num_trials) * 100,
-        Math.floor(0.7 * num_trials) * 100,
-        Math.floor(0.6 * num_trials) * 100,
-      ],
       returning: returning,
     }
   })
@@ -100,15 +96,6 @@ io.on('connection', (socket) => {
     fid.instructCount++
   })
 
-  socket.on('gimme_bonuses', (id) => {
-    let fid = foobar[id]
-    try {
-      socket.emit('the_bonuses_are', fid.bonusValues)
-    } catch (err) {
-      console.log(`gimme_bonuses: id ${id} doesn't have bonuses because err: ${err}`)
-    }
-  })
-
   socket.on('trial_choice', (id, data) => {
     // console.log(`id ${id}: ${JSON.stringify(data)}`)
     let fid = foobar[id]
@@ -116,7 +103,7 @@ io.on('connection', (socket) => {
       data.probs = [fid.probs[fid.trialCount], 1 - fid.probs[fid.trialCount]]
       data.rewards = fid.rewards[fid.trialCount]
       // if the chest had data, add 100; otherwise, none
-      data.reward = fid.rewards[fid.trialCount][data.value] ? 100 : 0
+      data.reward = fid.rewards[fid.trialCount][data.value]
     } catch (err) {
       console.log(`trial_choice: id ${id} doesn't exist. Err: ${err}`)
       return

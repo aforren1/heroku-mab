@@ -3,14 +3,13 @@ import { ChestGroup } from '../objects/chestgroup'
 import { TypingText } from '../objects/typingtext'
 import { Score } from '../objects/score'
 import { Enum } from '../utils/enum'
-import { Bonuses } from '../objects/bonuses'
 const states = Enum(['FADE_IN', 'INSTRUCT_1', 'INSTRUCT_2', 'INSTRUCT_3', 'FADE_OUT'])
 const type_speed = 50 // 50 for real deal
 
 let texts = [
   'Try to collect the most [color=yellow]treasure[/color]!\n\nSelect the treasure chest on the right side, either by clicking it or pressing the "L" key.',
   'One chest will be more likely to contain [color=yellow]treasure[/color] than the other, but [b][i][color=yellow]which[/color][/i][/b] chest that is may change over time.\n\nSelect the treasure chest on the left side to continue.',
-  'In addition to the base payment rate,\nyou can earn [color=yellow]bonuses[/color] by getting high scores.\n\nSelect the chest on the right side to continue.',
+  'In addition to the base payment rate,\nyou will earn [color=yellow]$0.01 USD[/color] per 100 points.\n\nSelect the chest on the right side to continue.',
 ]
 export default class InstructionScene extends Phaser.Scene {
   constructor() {
@@ -43,11 +42,6 @@ export default class InstructionScene extends Phaser.Scene {
     let chests = new ChestGroup(this, center, center + 150, 400, 0)
     this.chests = chests
     this.chests.reset()
-    socket.emit('gimme_bonuses', id)
-    socket.once('the_bonuses_are', (vals) => {
-      this.bonuses = new Bonuses(this, width - 160, 100, vals, 0)
-      this.bonusVals = vals
-    })
     let text = TypingText(this, center, center - 100, '', {
       fontFamily: 'Georgia',
       fontSize: '32px',
@@ -137,12 +131,6 @@ export default class InstructionScene extends Phaser.Scene {
         if (this.entering) {
           log.info('Entering instruct_3')
           this.entering = false
-          this.tweens.add({
-            targets: this.bonuses,
-            alpha: { from: 0, to: 1 },
-            scale: { from: 0.1, to: 1 },
-            duration: 1500,
-          })
           this.instr_text.start(texts[2], type_speed)
           this.chests.reset()
           this.instr_text.typing.once('complete', () => {
@@ -177,7 +165,6 @@ export default class InstructionScene extends Phaser.Scene {
             },
             onComplete: () =>
               this.scene.start('MainScene', {
-                bonusVals: this.bonusVals,
                 score: this.score.score,
               }),
           })

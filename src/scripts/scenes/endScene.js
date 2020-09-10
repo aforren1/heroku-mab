@@ -16,19 +16,12 @@ export default class EndScene extends Phaser.Scene {
     let center = this.game.config.height / 2
     let color = '#ffffff'
     let score = data.finalScore
-    let bonuses = data.bonusVals
-    if (score >= bonuses[0]) {
-      color = '#ffd700'
-    } else if (score >= bonuses[1]) {
-      color = '#C0C0C0'
-    } else if (score >= bonuses[2]) {
-      color = '#cd7f32'
-    }
+    let monies = Math.ceil(score / 10000).toFixed(2)
     this.add
       .rexBBCodeText(
         center,
         center,
-        `[stroke]Thank you for participating!\nFinal score: [color=${color}]${data.finalScore}[/color]\nAutomatically redirecting\nin 10 seconds...[/stroke]`,
+        `[stroke]Thank you for participating!\nFinal score: [color=#ffd700]${score}[/color]Final bonus: [color=#ffd700]$${monies}[/color]\nAutomatically redirecting\nin 10 seconds...[/stroke]`,
         {
           fontFamily: 'Georgia',
           fontSize: 60,
