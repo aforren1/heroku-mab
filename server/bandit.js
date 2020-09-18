@@ -36,11 +36,9 @@ function generateProbs(trials = 10) {
   // 3 Hz = nTrials/3
   // ...
   let rng = seedrandom('42')
-  const freqs = [2, 3, 5, 11, 17]
-  //const trials = freqs.reduce((a, b) => a * b)
-  //const baseAmp = 0.889 // max possible amplitude *just* shy of 1
-  //const amps = freqs.map((x) => baseAmp / x)
-  const amps = [0.2, 0.2, 0.2, 0.2, 0.2]
+  // const freqs = [2, 3, 5, 11, 17] // v1
+  const freqs = [7, 11, 17, 41, 61] // v2, after Sam's simulations
+  const amps = Array(freqs.length).fill(1 / freqs.length)
   const phases = [...Array(freqs.length)].map((_, i) => rng() * 2 * Math.PI)
   const t = Array.from({ length: trials }, (x, i) => i / trials)
   let probs = Array(trials).fill(0)

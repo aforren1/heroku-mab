@@ -73,9 +73,9 @@ io.on('connection', (socket) => {
       startDate: new Date(),
       endDate: null,
       bonusValues: [
-        Math.floor(0.8 * num_trials) * 100,
         Math.floor(0.7 * num_trials) * 100,
         Math.floor(0.6 * num_trials) * 100,
+        Math.floor(0.5 * num_trials) * 100,
       ],
       returning: returning,
     }
